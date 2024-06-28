@@ -9,15 +9,22 @@ const io = socketIo(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/bls', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'bls.html'));
+    res.sendFile(path.join(__dirname, 'public', 'emdr-bls.html'));
 });
 
 io.on('connection', (socket) => {
+    console.log('New client connected');
+    
     socket.on('updateSettings', (settings) => {
         io.emit('updateSettings', settings);
     });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
 });
 
-server.listen(3000, () => {
-    console.log('Server is running on port 3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
