@@ -14,8 +14,9 @@ app.get('/bls', (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('New client connected');
-    
+
     socket.on('updateSettings', (settings) => {
+        console.log('Settings received:', settings);
         io.emit('updateSettings', settings);
     });
 
