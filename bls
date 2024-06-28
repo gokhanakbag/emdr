@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMDR BLS Session</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #FFFFFF;
+            overflow: hidden;
+            flex-direction: column;
+            font-family: 'Arial', sans-serif;
+        }
+        #ball {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #0000FF;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="ball"></div>
+    <audio id="leftSound" src="left.wav"></audio>
+    <audio id="rightSound" src="right.wav"></audio>
+    <audio id="topSound" src="top.wav"></audio>
+    <audio id="bottomSound" src="bottom.wav"></audio>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const ball = document.getElementById('ball');
+        const leftSound = document.getElementById('leftSound');
+        const rightSound = document.getElementById('rightSound');
+        const topSound = document.getElementById('topSound');
+        const bottomSound = document.getElementById('bottomSound');
+        
+        const socket = io();
+        
+        let posX = window.innerWidth / 2 - 25;
+        let posY = window.innerHeight / 2 - 25;
+        let directionX = 1;
+        let directionY = 0;
+        let intervalId = null;
+        let speed = 5;
+        let soundEnabled = true;
+
+        const minDuration = 1000;
+        const maxDuration = 100;
+        const stepDuration = (minDuration - maxDuration) / 19; // Daha hassas hız kontrolü için
+
+        const calculateVelocity = (speedLevel) => {
+            const duration = minDuration - (speedLevel - 1) * stepDuration;
+            return (window.innerWidth - 50) / (duration / (1000 / 60));
+        };
+
+        const playSound = (sound) => {
+            if (soundEnabled) {
+                sound.currentTime = 0;
+                sound.play();
+            }
+        };
+
+        const moveBall = () => {
+            const velocityX = calculateVelocity(Number(speed));
+            const velocityY = calculateVelocity(Number(speed));
+            posX += velocityX * directionX;
+            posY += velocityY * directionY;
+
+            if (posX <= 0 || posX + 50 >= window.innerWidth) {
+                directionX *= -1;
+                playSound(directionX === 1 ? leftSound : rightSound);
+            }
+            if (posY <= 0 || posY + 50 >= window.innerHeight) {
+                directionY *= -1;
+                playSound(directionY === 1 ? topSound : bottomSound);
+            }
+
+            ball.style.left = `${posX}px`;
+            ball.style.top = `${posY}px`;
+        };
+
+        socket.on('updateSettings', (settings) => {
+            ball.style.backgroundColor = settings.blsColor;
+            document.body.style.backgroundColor = settings.bgColor;
+            speed = settings.speed;
+            soundEnabled = settings.sound;
+            switch (settings.direction) {
+                case 'left-right':
+                    directionX = 1;
+                    directionY = 0;
+                    posY = window.innerHeight / 2 - 25;
+                    break;
+                case 'up-down':
+                    directionX = 0;
+                    directionY = 1;
+                    posX = window.innerWidth / 2 - 25;
+                    break;
+                case 'diagonal1':
+                    directionX = 1;
+                    directionY = 1;
+                    break;
+                case 'diagonal2':
+                    directionX = 1;
+                    directionY = -1;
+                    break;
+            }
+        });
+
+        const startMovement = () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            } else {
+                intervalId = setInterval(moveBall, 1000 / 60);
+            }
+        };
+
+        startMovement();
+    </script>
+</body>
+</html>
