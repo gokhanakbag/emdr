@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Hareketi</title>
+    <title>EMDR BLS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -12,181 +12,112 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #BBBBBB;
+            background-color: #E3E3E3;
             overflow: hidden;
             flex-direction: column;
             font-family: 'Arial', sans-serif;
         }
-        #ball {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background-color: #FF0000;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-        .button {
-            background-color: #04AA6D;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #3a8267;
-        }
-        #homeButton {
-            position: absolute;
-            top: 10px;
-        }
-        #copyrightButton {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-        }
-        #controls {
-            position: absolute;
-            bottom: 0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background-color: #ffffff;
-            padding: 10px 20px;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            width: auto;
-            left: 50%;
-            transform: translateX(-50%);
-            gap: 15px; /* Increased gap between elements */
-        }
-        .counter, #speed-controls div {
-            margin: 0;
-            font-size: 1em;
-            font-weight: bold;
-            padding: 5px 10px;
-            background-color: #ecf0f1;
+        #controlPanel {
+            background-color: #FFF;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .settings-panel {
-            display: none;
-            position: absolute;
-            bottom: 80px;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            flex-direction: column;
+        .setting-group {
+            margin-bottom: 20px;
         }
-        .settings-panel p {
-            margin: 5px 0;
+        .setting-group label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: bold;
         }
-        .settings-panel .color-options {
-            display: flex;
-            gap: 10px;
+        .setting-group input[type="color"], .setting-group input[type="range"], .setting-group input[type="number"] {
+            width: 100%;
         }
-        .color-options div {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 1px solid #000000;
+        .direction-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .direction-buttons button {
+            width: 22%;
+            padding: 10px;
+            background-color: #FFF;
+            border: 1px solid #CCC;
             cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
         }
-        #speed-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        #inviteLinkSection {
+            margin-top: 20px;
+            display: none;
         }
-        @media (max-width: 600px) {
-            #controls {
-                flex-direction: column;
-                padding: 10px;
-                gap: 5px;
-            }
+        #inviteLinkSection input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #CCC;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <button id="homeButton" class="button">Ana Sayfa</button>
-    <button id="copyrightButton" class="button"><i class="fa-solid fa-copyright"></i> Telif</button>
-    <div id="ball"></div>
-    <div id="controls">
-        <div id="timer" class="counter">00:00</div>
-        <div class="counter"><span id="passesCounter">0</span></div>
-        <div class="counter">Set: <span id="setsCounter">0</span></div>
-        <button id="startStopButton" class="button"><i class="fa-solid fa-play"></i></button>
-        <button id="resetButton" class="button"><i class="fa-solid fa-redo"></i></button>
-        <div id="speed-controls">
-            <label><strong>Hız</strong></label>
-            <button id="speedMinus" class="button"><strong>-</strong></button>
-            <div id="speedLevel">5</div>
-            <button id="speedPlus" class="button"><strong>+</strong></button>
+    <div id="controlPanel">
+        <div class="setting-group">
+            <label for="blsColor">BLS Color</label>
+            <input type="color" id="blsColor" value="#0000FF">
         </div>
-        <button id="settingsButton" class="button"><i class="fa-solid fa-cog"></i></button>
-    </div>
-    <div id="settingsPanel" class="settings-panel">
-        <p>Top Rengi:</p>
-        <div class="color-options" id="ballColors">
-            <div style="background-color: #00008B;" data-color="#00008B"></div>
-            <div style="background-color: #008000;" data-color="#008000"></div>
-            <div style="background-color: #FFD700;" data-color="#FFD700"></div>
-            <div style="background-color: #FF0000;" data-color="#FF0000"></div>
+        <div class="setting-group">
+            <label for="bgColor">Background Color</label>
+            <input type="color" id="bgColor" value="#FFFFFF">
         </div>
-        <p>Arka Plan Rengi:</p>
-        <div class="color-options" id="bgColors">
-            <div style="background-color: #BBBBBB;" data-color="#BBBBBB"></div>
-            <div style="background-color: #7F7F7F;" data-color="#7F7F7F"></div>
-            <div style="background-color: #FFFFFF; border: 1px solid #000000;" data-color="#FFFFFF"></div>
-            <div style="background-color: #FCE9EB;" data-color="#FCE9EB"></div>
+        <div class="setting-group">
+            <label for="speed">Speed</label>
+            <input type="range" id="speed" min="1" max="10" step="0.5" value="5">
+        </div>
+        <div class="setting-group">
+            <label>Direction</label>
+            <div class="direction-buttons">
+                <button id="leftRightBtn"><i class="fas fa-arrows-alt-h"></i></button>
+                <button id="upDownBtn"><i class="fas fa-arrows-alt-v"></i></button>
+                <button id="diagonalBtn"><i class="fas fa-exchange-alt"></i></button>
+            </div>
+        </div>
+        <button id="inviteClientBtn" class="button">Invite Client</button>
+        <div id="inviteLinkSection">
+            <label for="inviteLink">Invite Link</label>
+            <input type="text" id="inviteLink" readonly>
         </div>
     </div>
-
+    <div id="ball" style="position:absolute; width: 50px; height: 50px; background-color: #FF0000; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
     <audio id="leftSound" src="left.wav"></audio>
     <audio id="rightSound" src="right.wav"></audio>
     <audio id="topSound" src="top.wav"></audio>
     <audio id="bottomSound" src="bottom.wav"></audio>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
         const ball = document.getElementById('ball');
-        const startStopButton = document.getElementById('startStopButton');
-        const resetButton = document.getElementById('resetButton');
-        const speedMinus = document.getElementById('speedMinus');
-        const speedPlus = document.getElementById('speedPlus');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const settingsButton = document.getElementById('settingsButton');
-        const ballColors = document.getElementById('ballColors');
-        const bgColors = document.getElementById('bgColors');
-        const timerDisplay = document.getElementById('timer');
-        const passesCounter = document.getElementById('passesCounter');
-        const setsCounter = document.getElementById('setsCounter');
-        const speedLevel = document.getElementById('speedLevel');
-        const homeButton = document.getElementById('homeButton');
-        const copyrightButton = document.getElementById('copyrightButton');
+        const blsColorInput = document.getElementById('blsColor');
+        const bgColorInput = document.getElementById('bgColor');
+        const speedInput = document.getElementById('speed');
+        const inviteClientBtn = document.getElementById('inviteClientBtn');
+        const inviteLinkSection = document.getElementById('inviteLinkSection');
+        const inviteLinkInput = document.getElementById('inviteLink');
+        const leftRightBtn = document.getElementById('leftRightBtn');
+        const upDownBtn = document.getElementById('upDownBtn');
+        const diagonalBtn = document.getElementById('diagonalBtn');
+
+        let posX = window.innerWidth / 2 - 25;
+        let posY = window.innerHeight / 2 - 25;
+        let directionX = 1;
+        let directionY = 0; // Başlangıçta yatay hareket
+        let intervalId = null;
 
         const leftSound = document.getElementById('leftSound');
         const rightSound = document.getElementById('rightSound');
         const topSound = document.getElementById('topSound');
         const bottomSound = document.getElementById('bottomSound');
 
-        let posX = window.innerWidth / 2 - 25;
-        let posY = window.innerHeight / 2 - 25;
-        let directionX = 1;
-        let directionY = 0; // Başlangıçta yatay hareket
-        let passes = 0;
-        let sets = 0;
-        let intervalId = null;
-        let startTime = null;
-        let elapsed = 0;
-
-        const minDuration = 2000;
-        const maxDuration = 500;
+        const minDuration = 1000;
+        const maxDuration = 100;
         const stepDuration = (minDuration - maxDuration) / 19; // Daha hassas hız kontrolü için
 
         const calculateVelocity = (speedLevel) => {
@@ -200,8 +131,8 @@
         };
 
         const moveBall = () => {
-            const velocityX = calculateVelocity(Number(speedLevel.textContent));
-            const velocityY = calculateVelocity(Number(speedLevel.textContent));
+            const velocityX = calculateVelocity(Number(speedInput.value));
+            const velocityY = calculateVelocity(Number(speedInput.value));
             posX += velocityX * directionX;
             posY += velocityY * directionY;
 
@@ -224,130 +155,60 @@
 
             ball.style.left = `${posX}px`;
             ball.style.top = `${posY}px`;
-            updateTimer();
         };
 
-        const updateTimer = () => {
-            if (startTime) {
-                const now = Date.now();
-                elapsed = now - startTime;
-                const seconds = Math.floor(elapsed / 1000);
-                const minutes = Math.floor(seconds / 60);
-                timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-            }
-        };
-
-        const toggleSettingsPanel = () => {
-            settingsPanel.style.display = settingsPanel.style.display === 'none' || settingsPanel.style.display === '' ? 'flex' : 'none';
-        };
-
-        const changeColor = (event, callback) => {
-            const color = event.target.dataset.color;
-            if (color) callback(color);
-            settingsPanel.style.display = 'none';
-        };
-
-        const changeBallColor = (color) => ball.style.backgroundColor = color;
-        const changeBgColor = (color) => document.body.style.backgroundColor = color;
-
-        const updateSpeed = (increment) => {
-            let speed = Number(speedLevel.textContent);
-            speed = Math.max(0.5, Math.min(10, speed + increment));
-            speedLevel.textContent = speed.toFixed(1); // 0.5'lik artışlarla güncelle
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = setInterval(moveBall, 1000 / 60);
-            }
-        };
-
-        const startStop = () => {
+        const startMovement = () => {
             if (intervalId) {
                 clearInterval(intervalId);
                 intervalId = null;
-                startTime = null;
-                startStopButton.innerHTML = '<i class="fa-solid fa-play"></i>';
-                posX = window.innerWidth / 2 - 25;
-                posY = window.innerHeight / 2 - 25;
-                ball.style.left = `${posX}px`;
-                ball.style.top = `${posY}px`;
             } else {
-                startTime = Date.now() - elapsed;
                 intervalId = setInterval(moveBall, 1000 / 60);
-                startStopButton.innerHTML = '<i class="fa-solid fa-stop"></i>';
-                setsCounter.textContent = ++sets;
             }
         };
 
-        const reset = () => {
-            clearInterval(intervalId);
-            intervalId = null;
-            posX = window.innerWidth / 2 - 25;
-            posY = window.innerHeight / 2 - 25;
-            ball.style.left = `${posX}px`;
-            ball.style.top = `${posY}px`;
+        blsColorInput.addEventListener('input', () => {
+            ball.style.backgroundColor = blsColorInput.value;
+        });
+
+        bgColorInput.addEventListener('input', () => {
+            document.body.style.backgroundColor = bgColorInput.value;
+        });
+
+        speedInput.addEventListener('input', () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = setInterval(moveBall, 1000 / 60);
+            }
+        });
+
+        leftRightBtn.addEventListener('click', () => {
             directionX = 1;
             directionY = 0;
-            passes = sets = 0;
-            passesCounter.textContent = setsCounter.textContent = 0;
-            timerDisplay.textContent = '00:00';
-            startStopButton.innerHTML = '<i class="fa-solid fa-play"></i>';
-            startTime = null;
-            elapsed = 0;
-        };
-
-        ballColors.addEventListener('click', (event) => {
-            changeColor(event, changeBallColor);
-            updateSettings();
-        });
-        bgColors.addEventListener('click', (event) => {
-            changeColor(event, changeBgColor);
-            updateSettings();
         });
 
-        startStopButton.addEventListener('click', startStop);
-        resetButton.addEventListener('click', reset);
-        speedMinus.addEventListener('click', () => {
-            updateSpeed(-0.5);
-            updateSettings();
-        });
-        speedPlus.addEventListener('click', () => {
-            updateSpeed(0.5);
-            updateSettings();
-        });
-        settingsButton.addEventListener('click', toggleSettingsPanel);
-        homeButton.addEventListener('click', () => window.location.href = 'https://www.ornekwebsitesi.com'); // Replace with your desired URL
-        copyrightButton.addEventListener('click', () => window.location.href = 'https://www.ornekwebsitesi.com'); // Replace with your desired URL
-
-        window.addEventListener('resize', () => {
-            posX = window.innerWidth / 2 - 25;
-            posY = window.innerHeight / 2 - 25;
-            ball.style.left = `${posX}px`;
-            ball.style.top = `${posY}px`;
+        upDownBtn.addEventListener('click', () => {
+            directionX = 0;
+            directionY = 1;
         });
 
-        ball.style.left = `${posX}px`;
-        ball.style.top = `${posY}px`;
-
-        const socket = io();
-
-        socket.on('settings', (settings) => {
-            directionX = settings.directionX;
-            directionY = settings.directionY;
-            speedLevel.textContent = settings.speed.toFixed(1);
-            ball.style.backgroundColor = settings.ballColor;
-            document.body.style.backgroundColor = settings.bgColor;
+        diagonalBtn.addEventListener('click', () => {
+            directionX = 1;
+            directionY = 1;
         });
 
-        const updateSettings = () => {
-            const newSettings = {
-                directionX,
-                directionY,
-                speed: Number(speedLevel.textContent),
-                ballColor: ball.style.backgroundColor,
-                bgColor: document.body.style.backgroundColor
-            };
-            socket.emit('updateSettings', newSettings);
-        };
+        inviteClientBtn.addEventListener('click', () => {
+            const randomString = Math.random().toString(36).substr(2, 8);
+            const inviteLink = `${window.location.origin}/session/${randomString}`;
+            inviteLinkInput.value = inviteLink;
+            inviteLinkSection.style.display = 'block';
+
+            setTimeout(() => {
+                inviteLinkInput.value = 'Link expired';
+                inviteLinkSection.style.display = 'none';
+            }, 40 * 60 * 1000); // 40 dakika sonra bağlantı geçersiz
+        });
+
+        startMovement();
     </script>
 </body>
 </html>
