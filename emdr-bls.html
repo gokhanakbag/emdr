@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMDR BLS</title>
+    <title>EMDR BLS Control Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #E3E3E3;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #E3E3E3;
-            overflow: hidden;
-            flex-direction: column;
-            font-family: 'Arial', sans-serif;
+            margin: 0;
         }
         #controlPanel {
             background-color: #FFF;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            max-width: 90%;
         }
         .setting-group {
             margin-bottom: 20px;
@@ -46,6 +46,14 @@
             cursor: pointer;
             border-radius: 5px;
             font-size: 1.2em;
+        }
+        .toggle-button {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .toggle-button input {
+            margin-right: 10px;
         }
         #inviteLinkSection {
             margin-top: 20px;
@@ -78,8 +86,13 @@
             <div class="direction-buttons">
                 <button id="leftRightBtn"><i class="fas fa-arrows-alt-h"></i></button>
                 <button id="upDownBtn"><i class="fas fa-arrows-alt-v"></i></button>
-                <button id="diagonalBtn"><i class="fas fa-exchange-alt"></i></button>
+                <button id="diagonal1Btn"><i class="fas fa-arrow-right-up"></i></button>
+                <button id="diagonal2Btn"><i class="fas fa-arrow-right-down"></i></button>
             </div>
+        </div>
+        <div class="setting-group toggle-button">
+            <input type="checkbox" id="soundToggle">
+            <label for="soundToggle">Sound</label>
         </div>
         <button id="inviteClientBtn" class="button">Invite Client</button>
         <div id="inviteLinkSection">
@@ -87,128 +100,74 @@
             <input type="text" id="inviteLink" readonly>
         </div>
     </div>
-    <div id="ball" style="position:absolute; width: 50px; height: 50px; background-color: #FF0000; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
-    <audio id="leftSound" src="left.wav"></audio>
-    <audio id="rightSound" src="right.wav"></audio>
-    <audio id="topSound" src="top.wav"></audio>
-    <audio id="bottomSound" src="bottom.wav"></audio>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        const ball = document.getElementById('ball');
         const blsColorInput = document.getElementById('blsColor');
         const bgColorInput = document.getElementById('bgColor');
         const speedInput = document.getElementById('speed');
+        const soundToggle = document.getElementById('soundToggle');
         const inviteClientBtn = document.getElementById('inviteClientBtn');
         const inviteLinkSection = document.getElementById('inviteLinkSection');
         const inviteLinkInput = document.getElementById('inviteLink');
         const leftRightBtn = document.getElementById('leftRightBtn');
         const upDownBtn = document.getElementById('upDownBtn');
-        const diagonalBtn = document.getElementById('diagonalBtn');
+        const diagonal1Btn = document.getElementById('diagonal1Btn');
+        const diagonal2Btn = document.getElementById('diagonal2Btn');
 
-        let posX = window.innerWidth / 2 - 25;
-        let posY = window.innerHeight / 2 - 25;
-        let directionX = 1;
-        let directionY = 0; // Başlangıçta yatay hareket
-        let intervalId = null;
+        const socket = io();
 
-        const leftSound = document.getElementById('leftSound');
-        const rightSound = document.getElementById('rightSound');
-        const topSound = document.getElementById('topSound');
-        const bottomSound = document.getElementById('bottomSound');
-
-        const minDuration = 1000;
-        const maxDuration = 100;
-        const stepDuration = (minDuration - maxDuration) / 19; // Daha hassas hız kontrolü için
-
-        const calculateVelocity = (speedLevel) => {
-            const duration = minDuration - (speedLevel - 1) * stepDuration;
-            return (window.innerWidth - 50) / (duration / (1000 / 60));
-        };
-
-        const playSound = (sound) => {
-            sound.currentTime = 0;
-            sound.play();
-        };
-
-        const moveBall = () => {
-            const velocityX = calculateVelocity(Number(speedInput.value));
-            const velocityY = calculateVelocity(Number(speedInput.value));
-            posX += velocityX * directionX;
-            posY += velocityY * directionY;
-
-            if (posX <= 0) {
-                directionX *= -1;
-                playSound(leftSound);
-            }
-            if (posX + 50 >= window.innerWidth) {
-                directionX *= -1;
-                playSound(rightSound);
-            }
-            if (posY <= 0) {
-                directionY *= -1;
-                playSound(topSound);
-            }
-            if (posY + 50 >= window.innerHeight) {
-                directionY *= -1;
-                playSound(bottomSound);
-            }
-
-            ball.style.left = `${posX}px`;
-            ball.style.top = `${posY}px`;
-        };
-
-        const startMovement = () => {
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            } else {
-                intervalId = setInterval(moveBall, 1000 / 60);
-            }
-        };
+        let direction = 'left-right';
 
         blsColorInput.addEventListener('input', () => {
-            ball.style.backgroundColor = blsColorInput.value;
+            socket.emit('updateSettings', { blsColor: blsColorInput.value });
         });
 
         bgColorInput.addEventListener('input', () => {
-            document.body.style.backgroundColor = bgColorInput.value;
+            socket.emit('updateSettings', { bgColor: bgColorInput.value });
         });
 
         speedInput.addEventListener('input', () => {
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = setInterval(moveBall, 1000 / 60);
-            }
+            socket.emit('updateSettings', { speed: speedInput.value });
+        });
+
+        soundToggle.addEventListener('change', () => {
+            socket.emit('updateSettings', { sound: soundToggle.checked });
         });
 
         leftRightBtn.addEventListener('click', () => {
-            directionX = 1;
-            directionY = 0;
+            direction = 'left-right';
+            socket.emit('updateSettings', { direction });
         });
 
         upDownBtn.addEventListener('click', () => {
-            directionX = 0;
-            directionY = 1;
+            direction = 'up-down';
+            socket.emit('updateSettings', { direction });
         });
 
-        diagonalBtn.addEventListener('click', () => {
-            directionX = 1;
-            directionY = 1;
+        diagonal1Btn.addEventListener('click', () => {
+            direction = 'diagonal1';
+            socket.emit('updateSettings', { direction });
+        });
+
+        diagonal2Btn.addEventListener('click', () => {
+            direction = 'diagonal2';
+            socket.emit('updateSettings', { direction });
         });
 
         inviteClientBtn.addEventListener('click', () => {
-            const randomString = Math.random().toString(36).substr(2, 8);
-            const inviteLink = `${window.location.origin}/session/${randomString}`;
+            const inviteLink = `${window.location.origin}/bls`;
             inviteLinkInput.value = inviteLink;
             inviteLinkSection.style.display = 'block';
-
-            setTimeout(() => {
-                inviteLinkInput.value = 'Link expired';
-                inviteLinkSection.style.display = 'none';
-            }, 40 * 60 * 1000); // 40 dakika sonra bağlantı geçersiz
         });
 
-        startMovement();
+        socket.emit('updateSettings', {
+            blsColor: blsColorInput.value,
+            bgColor: bgColorInput.value,
+            speed: speedInput.value,
+            sound: soundToggle.checked,
+            direction,
+        });
     </script>
 </body>
 </html>
